@@ -58,12 +58,20 @@ class Interpreter(object):
         # what token to create based on the single character
         current_char = text[self.pos]
 
-        # if the character is a digit then convert it to
-        # integer, create an INTEGER token, increment self.pos
-        # index to point to the next character after the digit,
+        # if the character is a digit then check if its a number,
+        # convert it to integer, create an INTEGER token, increment self.pos
+        # index to point to the next character after the digit or number,
         # and return the INTEGER token
-        if current_char.isdigit():
-            token = Token(INTEGER, int(current_char))
+
+        
+        if(current_char.isdigit()):
+            word = ''
+            word += current_char
+            print(self.pos)
+            while(self.pos < len(text)-1 and text[self.pos + 1].isdigit()):
+                self.pos += 1
+                word += text[self.pos]
+            token = Token(INTEGER, int(word))
             self.pos += 1
             return token
 
