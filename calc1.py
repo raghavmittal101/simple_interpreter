@@ -2,12 +2,12 @@
 #
 # EOF (end-of-file) token is used to indicate that
 # there is no more input left for lexical analysis
-INTEGER, PLUS, EOF = 'INTEGER', 'PLUS', 'EOF'
+INTEGER, MINUS, PLUS, EOF = 'INTEGER', 'MINUS', 'PLUS', 'EOF'
 
 
 class Token(object):
     def __init__(self, type, value):
-        # token type: INTEGER, PLUS, or EOF
+        # token type: INTEGER, MINUS, PLUS, or EOF
         self.type = type
         # token value: 0, 1, 2. 3, 4, 5, 6, 7, 8, 9, '+', or None
         self.value = value
@@ -87,6 +87,11 @@ class Interpreter(object):
             self.pos += 1
             return token
 
+        if current_char == '-':
+            token = Token(MINUS, current_char)
+            self.pos += 1
+            return token
+
         self.error()
 
     def eat(self, token_type):
@@ -100,29 +105,37 @@ class Interpreter(object):
             self.error()
 
     def expr(self):
-        """expr -> INTEGER PLUS INTEGER"""
+        """expr -> INTEGER PLUS INTEGER
+        or INTEGER MINUS INTEGER"""
         # set current token to the first token taken from the input
         self.current_token = self.get_next_token()
 
-        # we expect the current token to be a single-digit integer
+        # we expect the current token to be a single-digit or multidigit integer
         left = self.current_token
         self.eat(INTEGER)
 
-        # we expect the current token to be a '+' token
+        # we expect the current token to be a '+' token or '-' token
         op = self.current_token
-        self.eat(PLUS)
+        if(op.type == 'PLUS'):
+            self.eat(PLUS)
+        
+        if(op.type == 'MINUS'):
+            self.eat(MINUS)
 
-        # we expect the current token to be a single-digit integer
+        # current token could be a multidigit integer
         right = self.current_token
         self.eat(INTEGER)
         # after the above call the self.current_token is set to
         # EOF token
 
-        # at this point INTEGER PLUS INTEGER sequence of tokens
+        # at this point INTEGER (PLUS or MINUS) INTEGER sequence of tokens
         # has been successfully found and the method can just
         # return the result of adding two integers, thus
         # effectively interpreting client input
-        result = left.value + right.value
+        if(op.type == 'PLUS'):
+            result = left.value + right.value
+        elif (op.type == 'MINUS'):
+            result = left.value - right.value
         return result
 
 
